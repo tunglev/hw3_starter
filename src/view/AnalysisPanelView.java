@@ -61,6 +61,7 @@ public class AnalysisPanelView extends JPanel
 		messagePanel.setLayout(new FlowLayout(FlowLayout.CENTER));
 		this.messageLabel = new JLabel("");
 		this.messageLabel.setForeground(Color.red);
+		this.messageLabel.setFocusable(true);
 		this.messageLabel.setVisible(false);
 		messagePanel.add(this.messageLabel);
 		
@@ -161,10 +162,25 @@ public class AnalysisPanelView extends JPanel
 	 * 
 	 * @param model Represents the model's current state
 	 */
+	/**
+	 * Sets the message label text and fires an accessibility event
+	 * so that screen readers (e.g. VoiceOver) announce the message.
+	 */
+	private void setErrorMessage(String message) {
+		this.messageLabel.setText(message);
+		this.messageLabel.setVisible(true);
+		this.messageLabel.getAccessibleContext().firePropertyChange(
+			javax.accessibility.AccessibleContext.ACCESSIBLE_TEXT_PROPERTY,
+			null,
+			message
+		);
+		// Move focus to the label so VoiceOver reads it instead of staying on the button
+		this.messageLabel.requestFocusInWindow();
+	}
+
 	public void performDataAnalysis(ExpenseTrackerModel model) {
 		if (model.getTransactions().isEmpty()) {
-			this.messageLabel.setText(NO_TRANSACTIONS_ERROR_MESSAGE);
-			this.messageLabel.setVisible(true);
+			setErrorMessage(NO_TRANSACTIONS_ERROR_MESSAGE);
 		}
 		else {
 			this.messageLabel.setText("");
@@ -175,8 +191,7 @@ public class AnalysisPanelView extends JPanel
 			}
 			CategoryChart categoryChart = this.createCategoryChart(model);
 			if (categoryChart == null) {
-				this.messageLabel.setText(NO_TRANSACTIONS_ERROR_MESSAGE);
-				this.messageLabel.setVisible(true);				
+				setErrorMessage(NO_TRANSACTIONS_ERROR_MESSAGE);
 			}
 			else {
 				this.chartPanel = new XChartPanel<>(categoryChart);

@@ -36,6 +36,10 @@ public class DataPanelView extends JPanel {
 	    // Create UI components
 	    JLabel amountLabel = new JLabel("Amount:");
 	    amountField = new JTextField(10);
+
+		amountField.getAccessibleContext().setAccessibleDescription(
+    "This is the expense tracker application. There are two pages available in this app. The page you currently in is the main page with two entry fields where you can add your transaction and category. Below that is the table to show the record of your past transactions. At the top there is also a button to switch to the analysis page where you can see the summary of your transactions."
+);
 	    
 	    JLabel categoryLabel = new JLabel("Category:");
 	    categoryField = new JTextField(10);
