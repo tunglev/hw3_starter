@@ -9,6 +9,7 @@ import model.CSVImporter;
 import model.ExpenseTrackerModel;
 import model.InputValidation;
 import model.Transaction;
+import org.tinylog.Logger;
 import view.ExpenseTrackerView;
 
 /**
@@ -53,6 +54,7 @@ public class ExpenseTrackerController {
         
         // Initialize view
         view.setVisible(true);
+        Logger.info("Application started");
     }
     
     public ExpenseTrackerModel getModel() {
@@ -76,12 +78,15 @@ public class ExpenseTrackerController {
 
     		// Call controller to add transaction
     		model.addTransaction(t);
+    		Logger.info("Transaction added: amount={}, category={}", amount, category);
     		view.refresh();
     	}
     	catch (NumberFormatException nfe) {
+    		Logger.warn("Invalid amount input — could not parse as double");
     		view.displayErrorMessage("The amount cannot be parsed as a double number.");
     	}
     	catch (IllegalArgumentException iae) {
+    		Logger.warn("Invalid transaction input: {}", iae.getMessage());
     		view.displayErrorMessage(iae.getMessage());
     	}
     }
@@ -90,20 +95,24 @@ public class ExpenseTrackerController {
         int selectedTransactionID = view.getDataPanelView().getSelectedTransactionID();
     	boolean removed = model.removeTransaction(selectedTransactionID);
     	if (! removed) {
+    		Logger.warn("Delete failed: no valid transaction selected");
     		view.displayErrorMessage("A valid transaction was not selected to be removed.");
     	}
     	else {
+    		Logger.info("Transaction deleted at row {}", selectedTransactionID);
     		view.refresh();
     	}
     }
     
     public void openFile() {
     	String inputFileName = view.showFileChooser(true);
-    	if (inputFileName != null) {  	    
+    	if (inputFileName != null) {
+    		Logger.info("Opening file: {}", inputFileName);
     		int transactionCount = model.getTransactions().size();
     		for (int i = 0; i < transactionCount; i++) {
     			model.removeTransaction(0);
     		}
+    		Logger.debug("Cleared {} existing transactions before import", transactionCount);
 
     		try {
     			CSVImporter csvImporter = new CSVImporter();
@@ -111,8 +120,10 @@ public class ExpenseTrackerController {
     			for (Transaction importedTransaction : importedTransactionsList) {				
     				model.addTransaction(importedTransaction);
     			}
+    			Logger.info("Imported {} transactions from {}", importedTransactionsList.size(), inputFileName);
     		}
     		catch (IOException ioe) {
+    			Logger.error("Failed to import file: {}", ioe.getMessage());
     			view.displayErrorMessage(ioe.getMessage());
     		}
     		view.refresh();
@@ -122,15 +133,19 @@ public class ExpenseTrackerController {
     public void saveAs() {
     	String outputFileName = view.showFileChooser(false);
     	if (outputFileName != null) {
+    		Logger.info("Saving transactions to file: {}", outputFileName);
     		CSVExporter csvExporter = new CSVExporter();
     		String errorMessage = csvExporter.exportTransactions(model.getTransactions(), outputFileName);
     		if (errorMessage != null) {
+    			Logger.error("Failed to save file: {}", errorMessage);
     			view.displayErrorMessage(errorMessage);
     		}
     	}
     }
     
     public void performDataAnalysis() {
+    	String timeWindow = view.getAnalysisPanelView().getSelectedTimeWindow().getHumanReadableName();
+    	Logger.info("Data analysis requested for time window: {}", timeWindow);
     	view.getAnalysisPanelView().performDataAnalysis(model);
     }
 }

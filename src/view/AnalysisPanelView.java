@@ -22,6 +22,8 @@ import org.knowm.xchart.CategoryChartBuilder;
 import org.knowm.xchart.CategorySeries;
 import org.knowm.xchart.XChartPanel;
 
+import org.tinylog.Logger;
+
 import model.ExpenseTrackerModel;
 import model.InputValidation;
 
@@ -72,6 +74,10 @@ public class AnalysisPanelView extends JPanel
 	
 	public JButton getAnalyzeButton() {
 		return this.analyzeButton;
+	}
+
+	public DataAnalysisTimeWindow getSelectedTimeWindow() {
+		return (DataAnalysisTimeWindow) this.timeWindowChooser.getSelectedItem();
 	}
 	
 	public String getMessageLabelText() {
@@ -169,6 +175,7 @@ public class AnalysisPanelView extends JPanel
 	private void setErrorMessage(String message) {
 		this.messageLabel.setText(message);
 		this.messageLabel.setVisible(true);
+		Logger.warn("Analysis failed: no transactions in selected time window");
 		this.messageLabel.getAccessibleContext().firePropertyChange(
 			javax.accessibility.AccessibleContext.ACCESSIBLE_TEXT_PROPERTY,
 			null,
