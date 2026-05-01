@@ -86,3 +86,26 @@ The Expense Tracker application applies the MVC architecture pattern as follows:
   In that tab, select the analysis time window (e.g., 'Last week')
   In the tab, click the 'Analyze' button
   If there are transactions in that time window, displays the analysis results. If not, displays an error message.
+
+# Accessibility
+
+The application includes the following screen reader (e.g. VoiceOver on macOS) support:
+
+* **App Description on Launch:**
+  When the application first opens, focus is automatically moved to a description label at the top of the window. The screen reader will read out a description of the app and how to navigate it, so users know what the app does and where to go before interacting with any input fields.
+
+* **Analyze Error Announcement:**
+  If the user clicks the 'Analyze' button without any transaction data available for the selected time window, the error message is displayed on screen and focus is automatically moved to it. The screen reader will read the error message aloud, instead of staying on the Analyze button.
+
+# Logging
+
+The application uses the [tinylog](https://www.tinylog.org/) library to log events at runtime with timestamps, log level, and the method that triggered the event.
+
+The following events are logged:
+
+* **App startup**: logged at `INFO` level when the application launches.
+* **Add Transaction**: logged at `INFO` when a transaction is successfully added, including the amount and category. Logged at `WARN` if the amount cannot be parsed as a number, or if the amount or category is invalid.
+* **Delete Transaction**: logged at `INFO` when a transaction is successfully deleted, including the row number. Logged at `WARN` if no valid transaction was selected.
+* **Open File**: logged at `INFO` when a file is chosen, how many existing transactions were cleared beforehand (`DEBUG`), and how many transactions were imported. Logged at `ERROR` if the file cannot be read.
+* **Save File**: logged at `INFO` when a file is chosen for saving. Logged at `ERROR` if the save fails.
+* **Analyze**: logged at `INFO` when the Analyze button is clicked, including the selected time window (e.g. Last Week, Last Year, All). Logged at `WARN` if there are no transactions available to analyze in that time window.
